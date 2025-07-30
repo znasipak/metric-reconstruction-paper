@@ -1,0 +1,14 @@
+# User-specific .gitignore file for metric-reconstruction-paper project
+# This file is used to ignore files that should not be tracked by Git.
+data/
+dev.ipynb
+
+# standard Python ignores
+*.pyc
+__pycache__/
+*.log
+*.tmp
+*.bak
+*.swp
+*.DS_Store
+*.ipynb_checkpoints
