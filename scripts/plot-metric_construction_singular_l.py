@@ -10,8 +10,7 @@ rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
 rc('text', usetex=True)
 
 if __name__ == "__main__":
-
-    data_dir = "../data"
+    data_dir = os.path.join(os.path.dirname(__file__), "..", "data", "metric")
     df = pd.read_csv(os.path.join(data_dir, 'metric_metadata.csv'))
 
     a0 = 0.9
@@ -23,7 +22,7 @@ if __name__ == "__main__":
 
     gauges = df_subset['gauge'].unique()
 
-    r_grid = np.load(os.path.join(data_dir, df_subset['filename_rgrid'].values[0]))
+    r_grid = np.load(os.path.join(data_dir, df_subset['rgrid_file'].values[0]))
     p0_loc = np.where(r_grid == p0)[0][0]
     lmax = df_subset['lmax'].values[0]
     spin, p0, e0, x0 = df_subset[['a', 'p', 'e', 'x']].values[0]
@@ -34,7 +33,7 @@ if __name__ == "__main__":
 
     hret_data_g = {}
     hret_l_g = {}
-    for gauge, hret_file in zip(df_subset['gauge'], df_subset['filename_hlm']):
+    for gauge, hret_file in zip(df_subset['gauge'], df_subset['hretlm_file']):
         hret_data_g[gauge] = np.load(os.path.join(data_dir, hret_file))
         hret_l_g[gauge] = np.sum(hret_data_g[gauge], axis=1)
 

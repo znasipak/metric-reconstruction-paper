@@ -11,7 +11,7 @@ rc('text', usetex=True)
 
 if __name__ == "__main__":
     # Load metadata file which tells us which data files to load
-    data_dir = "../data"
+    data_dir = os.path.join(os.path.dirname(__file__), "..", "data", "metric")
     df = pd.read_csv(os.path.join(data_dir, 'metric_metadata.csv'))
 
     # Select a specific system to plot
@@ -25,7 +25,7 @@ if __name__ == "__main__":
     gauges = df_subset['gauge'].unique()
 
     # Load the radial grid from the first file in the subset
-    r_grid = np.load(os.path.join(data_dir, df_subset['filename_rgrid'].values[0]))
+    r_grid = np.load(os.path.join(data_dir, df_subset['rgrid_file'].values[0]))
     p0_loc = np.where(r_grid == ptemp)[0][0]
     lmax_temp = df_subset['lmax'].values[0]
     assert lmax_temp == lmax, f"Expected lmax {lmax}, but got {lmax_temp}"
@@ -43,7 +43,7 @@ if __name__ == "__main__":
     # Load hret data for each gauge and sum over l-modes
     hret_data_g = {}
     hret_m_g = {}
-    for gauge, hret_file in zip(df_subset['gauge'], df_subset['filename_hlm']):
+    for gauge, hret_file in zip(df_subset['gauge'], df_subset['hretlm_file']):
         hret_data_g[gauge] = np.load(os.path.join(data_dir, hret_file))
         hret_m_g[gauge] = np.sum(hret_data_g[gauge], axis=0)
 

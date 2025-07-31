@@ -11,7 +11,7 @@ rc('text', usetex=True)
 
 if __name__ == "__main__":
     # Load metadata file which tells us which data files to load
-    data_dir = "../data"
+    data_dir = os.path.join(os.path.dirname(__file__), "..", "data", "metric")
     df = pd.read_csv(os.path.join(data_dir, 'metric_metadata.csv'))
 
     # Select a specific system to plot
@@ -42,10 +42,10 @@ if __name__ == "__main__":
     for k in range(kcells):
         p0 = p0_vals[k]
         df_a0_0 = df_subset.loc[(df_subset['p'] == p0) & (df_subset['a'] == a0_vals[0])]
-        hret_file_0 = df_a0_0['filename_hlm'].values[0]
+        hret_file_0 = df_a0_0['hretlm_file'].values[0]
         hret_data_g_temp_0 = np.load(os.path.join(data_dir, hret_file_0))
         df_a0_1 = df_subset.loc[(df_subset['p'] == p0) & (df_subset['a'] == a0_vals[1])]
-        hret_file_1 = df_a0_1['filename_hlm'].values[0]
+        hret_file_1 = df_a0_1['hretlm_file'].values[0]
         hret_data_g_temp_1 = np.load(os.path.join(data_dir, hret_file_1))
         
         geo0 = KerrGeodesic(a0_vals[0], p0, 0., 1., nsamples = 4)
@@ -58,7 +58,7 @@ if __name__ == "__main__":
         rp1 = 1 + kappa1
         rm1 = 1 - kappa1
 
-        r_grid_file_0 = df_a0_0['filename_rgrid'].values[0]
+        r_grid_file_0 = df_a0_0['rgrid_file'].values[0]
         r_grid0 = np.load(os.path.join(data_dir, r_grid_file_0))
         rstar0 = r_grid0 + (1+kappa0)/kappa0*np.log((r_grid0 - rp0)/2) - (1-kappa0)/kappa0*np.log((r_grid0 - rm0)/2)
         rstar0p = p0 + (1+kappa0)/kappa0*np.log((p0 - rp0)/2) - (1-kappa0)/kappa0*np.log((p0 - rm0)/2)
@@ -71,7 +71,7 @@ if __name__ == "__main__":
         phigrid0 = phistar0 - phistar0p
         phigrid0[r_grid0 == p0] = 0
 
-        r_grid_file_1 = df_a0_1['filename_rgrid'].values[0]
+        r_grid_file_1 = df_a0_1['rgrid_file'].values[0]
         r_grid1 = np.load(os.path.join(data_dir, r_grid_file_1))
         rstar1 = r_grid1 + (1+kappa1)/kappa1*np.log((r_grid1 - rp1)/2) - (1-kappa1)/kappa1*np.log((r_grid1 - rm1)/2)
         rstar1p = p0 + (1+kappa1)/kappa1*np.log((p0 - rp1)/2) - (1-kappa1)/kappa1*np.log((p0 - rm1)/2)
@@ -83,6 +83,11 @@ if __name__ == "__main__":
         phistar1p = 0
         phigrid1 = phistar1 - phistar1p
         phigrid1[r_grid1 == p0] = 0
+
+        tgrid0 = 0
+        tgrid1 = 0
+        phigrid0 = 0
+        phigrid1 = 0
         
         for i in [0,1]:
             j = 0
@@ -93,8 +98,8 @@ if __name__ == "__main__":
                 uv_sgn = -1
             hretlm0 = np.array([hret_data_g_temp_0[:, mm]*np.exp(uv_sgn*1.j * geo0.mode_frequency(mm, 0, 0) * tgrid0)*np.exp(1j*mm*phigrid0) for mm in mmodes]).swapaxes(0, 1)
             hretlm1 = np.array([hret_data_g_temp_1[:, mm]*np.exp(uv_sgn*1.j * geo1.mode_frequency(mm, 0, 0) * tgrid1)*np.exp(1j*mm*phigrid1) for mm in mmodes]).swapaxes(0, 1)
-            rlower0 = rp0
-            rlower1 = rp1
+            rlower0 = 0
+            rlower1 = 0
             for ll in lrange_list:
                 grid_lmax_val = np.sum(hretlm0, axis = 1)[ll, comp_iter, i]
                 grid_lmax_val[np.abs(grid_lmax_val) == 0] = None
@@ -116,23 +121,23 @@ if __name__ == "__main__":
                     label = None
                 ax[k, 1].plot(r_grid1 - rlower1, np.abs(grid_lmax_val/grid_max_val), c=color_list[j], label = label)
 
-                ax[k, 0].plot((p0 - rlower0, p0 - rlower0), (1e-25, 1), '-', c='grey', lw = 0.5)
-                ax[k, 1].plot((p0 - rlower1, p0 - rlower1), (1e-25, 1), '-', c='grey', lw = 0.5)
+                ax[k, 0].plot((p0 - rlower0, p0 - rlower0), (1e-21, 1), '-', c='grey', lw = 0.5)
+                ax[k, 1].plot((p0 - rlower1, p0 - rlower1), (1e-21, 1), '-', c='grey', lw = 0.5)
                 
-                xmin0 = r_grid0[0] - rlower0 + 1e-4
-                xmin1 = r_grid1[0] - rlower1 + 1e-4
-                xmax = 5000
+                xmin0 = r_grid0[0] - rlower0 + 1e-2
+                xmin1 = r_grid1[0] - rlower1 + 1e-2
+                xmax = 50
 
                 ax[k, 0].set_yscale('log')
-                ax[k, 0].set_xscale('log')
+                # ax[k, 0].set_xscale('log')
                 ax[k, 0].set_xlim(xmin0, xmax)
-                ax[k, 0].set_ylim(1e-25, 1)
+                ax[k, 0].set_ylim(1e-21, 1)
 
                 ax[k, 1].set_yscale('log')
-                ax[k, 1].set_xscale('log')
+                # ax[k, 1].set_xscale('log')
                 ax[k, 1].set_xlim(xmin1, xmax)
-                ax[k, 1].set_ylim(1e-25, 1)
-                ax[k, 1].text(2*(p0 - rlower1), 1e-2, f"$p = {int(p0)}$", fontsize=13, color = 'grey', usetex = True)
+                ax[k, 1].set_ylim(1e-21, 1)
+                ax[k, 1].text(p0 - rlower1 + 1, 1e-20, f"$p = {int(p0)}$", fontsize=13, color = 'grey', usetex = True)
 
                 ax[k, 0].set_ylabel(f"$\\hat{{\\Delta}}^{{\\mathrm{{{gauge}}},\\ell_\\mathrm{{max}}}}_{{lm}}$")
                 j += 1
@@ -141,4 +146,4 @@ if __name__ == "__main__":
     ax[0,1].set_title('$a = 0.9$', fontsize=13)
     ax[-1, 0].set_xlabel('$r/M$')
     ax[-1, 1].set_xlabel('$r/M$')
-    plt.savefig(f"figures/lmode-contribution-log-{gauge}.pdf", dpi=300, bbox_inches='tight', format='pdf')
+    plt.savefig(f"figures/lmode-contribution-{gauge}.pdf", dpi=300, bbox_inches='tight', format='pdf')

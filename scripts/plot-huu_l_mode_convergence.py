@@ -50,56 +50,17 @@ def huu_reg_gen(geo):
     thp = np.array([th0 for r in r0])
     return huu_reg_gen_base(q, En, Lz, Qc, rp, thp)
 
-def load_huu_Yl_data(jobname, dir = None, param_dir = None):
-    if dir is None:
-        dir = os.path.dirname(os.path.realpath(__file__))
-    if param_dir is None:
-        param_dir = os.path.dirname(os.path.realpath(__file__))
-    data_dir = os.path.join(dir, jobname)
-    param_file = os.path.join(param_dir, f"params-{jobname}.json")
-    with open(param_file) as json_file:
-        params = json.load(json_file)
-    lmax = params['lmax']
-    nsamples = params['nsamples']
-    meta_data = []
-    print(lmax)
-
-    huuYl_arr = np.zeros((2, lmax+1, nsamples, nsamples))
-    for m in range(0, lmax + 1):
-        try:
-            data_file = os.path.join(data_dir, f"huuYl-{jobname}-km-m{m}.npy")
-            data_lm = np.load(data_file).swapaxes(0,1).reshape(4, lmax+1, nsamples, nsamples)
-            huuYl_arr += data_lm[:2]
-        except FileNotFoundError:
-            print(f"huuYl-{jobname}-km-m{m}.npy not found")
-        try:
-            data_file = os.path.join(data_dir, f"huuYl-{jobname}-kp-m{m}.npy")
-            data_lm = np.load(data_file).swapaxes(0,1).reshape(4, lmax+1, nsamples, nsamples)
-            huuYl_arr += data_lm[:2]
-        except FileNotFoundError:
-            print(f"huuYl-{jobname}-kp-m{m}.npy not found")
-        try:
-            data_file = os.path.join(data_dir, f"metadata-{jobname}-km-m{m}.txt")
-            data_meta = np.loadtxt(data_file)
-            meta_data.append(data_meta)
-        except FileNotFoundError:
-            print(f"metadata-{jobname}-km-m{m}.txt not found")
-        try:
-            data_file = os.path.join(data_dir, f"metadata-{jobname}-kp-m{m}.txt")
-            data_meta = np.loadtxt(data_file)
-            meta_data.append(data_meta)
-        except FileNotFoundError:
-            print(f"metadata-{jobname}-km-m{m}.txt not found")
-    
-    return huuYl_arr, params, meta_data
-
 if __name__ == "__main__":
-    data_dir = "../data"
+    data_dir = os.path.join(os.path.dirname(__file__), "../data/huu")
     df = pd.read_csv(os.path.join(data_dir, "huu_metadata.csv"))
+    
+    # Filter for e = 0.6
     df_highe = df[df['e'] == 0.6]
+    huu_file = os.path.join(df_highe["subdir"].values[0], df_highe["huu_file"].values[0])
+    params_file = os.path.join(df_highe["subdir"].values[0], df_highe["params_file"].values[0])
 
-    huuYl_arr = np.load(os.path.join(data_dir, df_highe["filename_huu"].values[0]))
-    with open(os.path.join(data_dir, df_highe["filename_params"].values[0])) as json_file:
+    huuYl_arr = np.load(os.path.join(data_dir, huu_file))
+    with open(os.path.join(data_dir, params_file)) as json_file:
         params = json.load(json_file)
 
     a = params['a']
