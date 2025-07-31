@@ -1,5 +1,6 @@
 # metric-reconstruction-paper
-Repository of results for the paper on metric reconstruction
+Repository of results for the paper on metric reconstruction: *Z. Nasipak, Metric reconstruction and the Hamiltonian for eccentric, precessing binaries in the small-mass-ratio limit (2025)*.
+
 See the [arXiv](https://arxiv.org/abs/2507.07746) for the latest version.
 
 All figures from the paper are included in the `figures` directory, while numerical values of the redshift, particularly those reported in Tables I and II in the paper, are provided in the `results` directory. Specifically,
