@@ -1,7 +1,7 @@
 # metric-reconstruction-paper
 Repository of results for the paper on metric reconstruction: 
   
-Z. Nasipak, *Metric reconstruction and the Hamiltonian for eccentric, precessing binaries in the small-mass-ratio limit* (2025) arXiv:2507.07746
+Z. Nasipak, *Metric reconstruction and the Hamiltonian for eccentric, precessing binaries in the small-mass-ratio limit* (2025) [arXiv:2507.07746](https://arxiv.org/abs/2507.07746)
 
 See the [arXiv](https://arxiv.org/abs/2507.07746) for the latest version.
 
