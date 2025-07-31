@@ -51,7 +51,7 @@ def huu_reg_gen(geo):
     return huu_reg_gen_base(q, En, Lz, Qc, rp, thp)
 
 if __name__ == "__main__":
-    data_dir = os.path.join(os.path.dirname(__file__), "../data/huu")
+    data_dir = os.path.join(os.path.dirname(__file__), "..", "data", "huu")
     df = pd.read_csv(os.path.join(data_dir, "huu_metadata.csv"))
     
     # Filter for e = 0.6
