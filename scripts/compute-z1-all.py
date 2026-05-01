@@ -61,8 +61,10 @@ def huu_reg_gen(geo):
 def orbit_average_gen(func, geo, axis = 0):
     th = geo.polarpoints
     r = geo.radialpoints
-    thp = full_libration(th)
-    rp = full_libration(r)
+    nr, nth = func.shape[-2:]
+
+    thp = full_libration(th)[:nth]
+    rp = full_libration(r)[:nr]
     q = geo.blackholespin
     sig = np.add.outer(rp**2, q**2*np.cos(thp)**2)
     if func.shape[1] != 2:
@@ -307,7 +309,8 @@ def huu_fit(huuYl, huuReg, geo, nmin = 1, nmax = 2, min_lmax = 12, lmin_test = 8
 
 import pandas as pd
 if __name__ == "__main__":
-    data_dir = os.path.join(os.path.dirname(__file__), "..", "data", "huu")
+    root_dir = os.path.dirname(__file__)
+    data_dir = os.path.join(root_dir, "..", "data", "huu")
     df_full = pd.read_csv(os.path.join(data_dir, "huu_metadata.csv"))
 
     subdir = df_full['subdir'].unique()
@@ -341,6 +344,9 @@ if __name__ == "__main__":
             huuYl_file = os.path.join(data_dir, s, df.loc[i, 'huu_file'])
             huuYl_arr = np.load(huuYl_file)
 
+            nsamples = params["nsamples"]
+            nsamples_max = params.get("nsamples_max", nsamples)
+
             a = params['a']
             p = params['p']
             e = params['e']
@@ -357,6 +363,25 @@ if __name__ == "__main__":
             else:
                 huureg = huu_reg_gen(geo)
 
+            if (huuYl_test.shape[1] != huureg.shape[0]):
+                if e == 0.:
+                    print("Adjusting shapes of huuYl_test and huureg to match for the e=0 case...")
+                    min_dim = min(huuYl_test.shape[1], huureg.shape[0])
+                    huuYl_test = huuYl_test[:, :min_dim]
+                    huureg = huureg[:min_dim]
+                else:
+                    raise ValueError("huuYl_test and huureg have different shapes", huuYl_test.shape, huureg.shape)
+                
+            if (huuYl_test.shape[2] != huureg.shape[1]):
+                if x**2 == 1.0:
+                    print("Adjusting shapes of huuYl_test and huureg to match for the x=1 case...")
+                    min_dim = min(huuYl_test.shape[2], huureg.shape[1])
+                    huuYl_test = huuYl_test[:, :, :min_dim]
+                    huureg = huureg[:, :min_dim]
+                    print(f"New shapes: huuYl_test: {huuYl_test.shape}, huureg: {huureg.shape}")
+                else:
+                    raise ValueError("huuYl_test and huureg have different shapes", huuYl_test.shape, huureg.shape)
+                
             print("Fitting data...")
             out = huu_fit(huuYl_test, huureg, geo, lmin_test = 5, min_lmax = 12, axis = 2, nmax = 3)
             z1 = out["est1"]["z1"]
@@ -364,8 +389,9 @@ if __name__ == "__main__":
             z1_lmax = out["est1"]["z1_lmax"]
             z0 = out["z0"]
             lmax_cut = out["est1"]["lmax"]
-            data = [gauge, name, a, p, e, x, z0, z1, z1_err, lmax_cut, z1_lmax]
-            data_list.append(data)
+
+            u1 = -z1 / z0**2
+            u1_err = z1_err / z0**2
 
             error_order = int(-np.floor(np.log10(z1_err)))
             error_digit = int(np.ceil(z1_err*10**(error_order)))
@@ -380,8 +406,13 @@ if __name__ == "__main__":
             print(f"Computed value z1 error: {z1_err}")
             print(f"Computed value z1 lmax: {z1_lmax}")
 
+            if z1_err > 1e-2:
+                print("Warning: z1 error is large, check the fit and data quality.")
+            data = [gauge, name, a, p, e, x, z0, z1, z1_err, u1, u1_err, lmax_cut, z1_lmax]
+            data_list.append(data)
+
             # Save the results
-            output_dir = f"results/{gauge}/{name}"
+            output_dir = os.path.join(root_dir, "..", "results", f"{gauge}", f"{name}")
             if not os.path.exists(output_dir):
                 os.makedirs(output_dir)
             output_file = os.path.join(output_dir, f"z1-{gauge}-{name}.npy")
@@ -391,8 +422,8 @@ if __name__ == "__main__":
             z1_str_list.append(f"{z1_trunc}({error_digit})")
             paper_iter_list.append(i)
 
-        df_data = pd.DataFrame(data_list, columns=['gauge', 'name', 'a', 'p', 'e', 'x', 'z0', 'z1', 'z1_err', 'lmax_cut', 'z1_lmax'])
+        df_data = pd.DataFrame(data_list, columns=['gauge', 'name', 'a', 'p', 'e', 'x', 'z0', 'z1', 'z1_err', 'u1', 'u1_err', 'lmax_cut', 'z1_lmax'])
         df_data.sort_values(by=['a', 'e', 'name', 'gauge'], inplace=True, ignore_index=True)
         df_data.to_csv(
-            f"results/z1-{s}.csv"
+            os.path.join(root_dir, "..", "results", f"z1-{s}.csv"), index=False
         )

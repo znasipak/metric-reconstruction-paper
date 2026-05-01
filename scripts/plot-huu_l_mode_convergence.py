@@ -76,7 +76,7 @@ if __name__ == "__main__":
     df = pd.read_csv(os.path.join(data_dir, "huu_metadata.csv"))
     
     # Filter for e = 0.6
-    df_highe = df[df['e'] == 0.6]
+    df_highe = df[(df['e'] == 0.6)&(df['x']==0.8)]
     huu_file = os.path.join(df_highe["subdir"].values[0], df_highe["huu_file"].values[0])
     params_file = os.path.join(df_highe["subdir"].values[0], df_highe["params_file"].values[0])
 
@@ -106,8 +106,8 @@ if __name__ == "__main__":
     ymin = np.min(np.abs(data0[:lmax]))/5
     ymax = 5*np.max(np.abs(data1[:lmax]))
     ax.plot(l0_list, data0, 'o', fillstyle='none', label="$r \\rightarrow r_p^-$")
-    ax.plot(l0_list, data1, 'd', fillstyle='none', label="$r \\rightarrow r_p^+$")
-    ax.plot(l0_list, data2, 'x', fillstyle='none', label="average")
+    ax.plot(l0_list, data1, 'v', fillstyle='none', label="$r \\rightarrow r_p^+$")
+    ax.plot(l0_list, data2, 'D', fillstyle='none', label="average")
     for i in range(25):
         ax.plot(l0_list[1:], ymax*10.**(3-0.5*i)*l0_list[1:]**(-2), '--', color='gray', lw=0.5)
     ax.set_yscale('log')
@@ -115,9 +115,12 @@ if __name__ == "__main__":
     ax.set_xticks([1, 2, 5, 10, 20])
     ax.set_xticklabels([1, 2, 5, 10, 20])
     ax.set_xlabel("$\\ell$")
-    ax.set_ylabel("$\\left|\\langle \\tilde{{z}}_1^{{\mathrm{{ORG}},\\mathrm{{rec}},\ell}}\\rangle_t - \\langle \\tilde{{z}}_1^{{\\mathrm{{S}}[0]}}\\rangle_t\\right|$")
+    ax.set_ylabel("$\\left|\\langle \\tilde{{z}}_1^{{\\mathrm{{ORG}},\\mathrm{{rec}},\\ell}}\\rangle_t - \\langle \\tilde{{z}}_1^{{\\mathrm{{S}}[0]}}\\rangle_t\\right|$")
     # ax.set_title(f"$(a, p, e, x) = ({a}, {p:0.4f}, {e}, {x})$")
     ax.set_ylim(ymin, ymax)
     ax.set_xlim(1, lmax)
     ax.legend(loc='upper right', fontsize=12)
-    plt.savefig(f"figures/huuYl-plot-{a}-{p:0.4f}-{e}-{x}.pdf", bbox_inches='tight')
+
+    savepath = os.path.join(os.path.dirname(__file__), "..", "figures", f"huuYl-plot-{a}-{p:0.4f}-{e}-{x}.pdf")
+
+    plt.savefig(savepath, bbox_inches='tight')

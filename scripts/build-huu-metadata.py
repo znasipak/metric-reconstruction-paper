@@ -58,7 +58,7 @@ if __name__ == "__main__":
     if not df.empty:
         df.sort_values(by=['subdir', 'name'], inplace=True, na_position='last')
         df.reset_index(drop=True, inplace=True)
-    out_csv = os.path.join(data_dir, 'huu-metadata-test.csv')
+    out_csv = os.path.join(data_dir, 'huu_metadata.csv')
     df.to_csv(out_csv, index=False)
     print(f"Wrote metadata for {len(df)} entries to {out_csv}")
     

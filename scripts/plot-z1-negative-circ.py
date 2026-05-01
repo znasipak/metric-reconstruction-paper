@@ -11,15 +11,16 @@ plt.rcParams["font.size"] = 18
 if __name__ == "__main__":
     # Load the data from the file
     file = os.path.join(os.path.dirname(__file__), "..", "results", "z1-circular.csv")
+    savepath = os.path.join(os.path.dirname(__file__), "..", "figures", "z1-negative-circ-corrected.pdf")
     data_df = pd.read_csv(file)
-    data = data_df[['p', 'z1']].to_numpy()
+    data = data_df[['p', 'z1']].sort_values('p').to_numpy()
     
     # Define the psep value
     psep = 1.1817646130335848
     
     # Plot the data
-    plt.plot(data[:, 0] - psep, data[:, 1], '.', label = 'z1')
+    plt.plot(data[:, 0] - psep, data[:, 1], '-o', label = 'z1')
     plt.axhline(y=0, color='gray', linestyle='-', linewidth=0.5)
     plt.ylabel("$\\langle \\tilde{z}_1 \\rangle_t$")
     plt.xlabel("$p-p_\\mathrm{ISO}$")
-    plt.savefig("figures/z1-negative-circ-corrected.pdf", bbox_inches='tight')
+    plt.savefig(savepath, bbox_inches='tight', dpi = 300)

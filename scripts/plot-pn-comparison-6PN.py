@@ -7,15 +7,25 @@ from matplotlib import rc
 import matplotlib as mpl
 rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
 rc('text', usetex=True)
+rc('font', size=14)  # sets default font size
+rc('axes', labelsize=14)  # axis labels
+# rc('xtick', labelsize=11)  # x-axis tick labels
+# rc('ytick', labelsize=11)  # y-axis tick labels
+rc('legend', fontsize=12)  # legend
 
-current_dir = os.path.dirname(__file__)
-rel_dir = os.path.join(current_dir, "..", "data", "huu", "equatorial_pn_comparison")
+root_dir = os.path.dirname(os.path.abspath(__file__))
+savepath = os.path.join(root_dir, "..", "figures", "pn-comparison-6PN.pdf")
 
-df_u1_num_data = pd.read_csv(os.path.join(rel_dir, "u1-numerical-comparison.csv"))
-df_u1_pn_data = pd.read_csv(os.path.join(rel_dir, "u1-pn-comparison.csv"))
+numerical_comparison_filepath = os.path.join(root_dir, "..", "results", "z1-equatorial_pn_comparison.csv")
+u1_pn_comparison_filepath = os.path.join(root_dir, "..", "results", "u1-pn-reference.csv")
 
-u1_num_data = df_u1_num_data.to_numpy().reshape(4, 9, 4).swapaxes(0, 1)
-u1_pn_data = df_u1_pn_data.to_numpy().reshape(9, 4, 9, 4).swapaxes(1, 2)
+df_u1_pn_data = pd.read_csv(u1_pn_comparison_filepath)
+df_num_data = pd.read_csv(numerical_comparison_filepath)
+
+df_num_a99_data = df_num_data[df_num_data["a"] == 0.99]
+
+u1_num_data = df_num_a99_data[["p", "e", "u1", "u1_err"]].to_numpy().reshape(4, 9, 4).swapaxes(0, 1)
+u1_pn_data = df_u1_pn_data[["PNorder","p", "e", "u1"]].to_numpy().reshape(9, 4, 9, 4).swapaxes(1, 2)
 
 e_idx = 3
 p_idx_start = 1
@@ -47,8 +57,8 @@ ax[1].set_xscale("log")
 ax[0].set_xlabel('$p - 2$')
 ax[1].set_xlabel('$p - 2$')
 ax[0].set_ylabel('relative difference $\\langle U_1 \\rangle$')
-ax[0].text(0.85, 0.9, '$e = 0.1$', transform=ax[0].transAxes, color='black', bbox=dict(facecolor='none', edgecolor='black', lw = 0.5, boxstyle='round,pad=1'))
-ax[1].text(0.85, 0.9, '$e = 0.6$', transform=ax[1].transAxes, color='black', bbox=dict(facecolor='none', edgecolor='black', lw = 0.5, boxstyle='round,pad=1'))
+ax[0].text(0.82, 0.895, '$e = 0.1$', transform=ax[0].transAxes, color='black', bbox=dict(facecolor='none', edgecolor='black', lw = 0.5, boxstyle='round,pad=0.5'))
+ax[1].text(0.82, 0.895, '$e = 0.6$', transform=ax[1].transAxes, color='black', bbox=dict(facecolor='none', edgecolor='black', lw = 0.5, boxstyle='round,pad=0.5'))
 ax[1].legend(ncol = 2, loc = "lower left")
 
-plt.savefig("../figures/pn-comparison-6PN.pdf", bbox_inches = "tight", dpi = 300)
+plt.savefig(savepath, bbox_inches = "tight", dpi = 300)
