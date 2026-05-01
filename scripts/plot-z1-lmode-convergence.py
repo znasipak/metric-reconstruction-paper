@@ -8,6 +8,9 @@ import os
 import json
 import numpy as np
 import pandas as pd
+from pybhpt.geo import (kerrgeo_Vt_radial, 
+                        kerrgeo_Vt_polar)
+
 plt.rcParams["text.usetex"] = True
 plt.rcParams["font.family"] = "serif"
 plt.rcParams["font.serif"] = ["Computer Modern"]
@@ -50,6 +53,24 @@ def huu_reg_gen(geo):
     thp = np.array([th0 for r in r0])
     return huu_reg_gen_base(q, En, Lz, Qc, rp, thp)
 
+def ut_gen(q, En, Lz, Qc, r, th):
+    Sigma = np.add.outer(r**2, q**2*np.cos(th)**2)
+    utr = np.array([kerrgeo_Vt_radial(q, En, Lz, Qc, ri) for ri in r])
+    utth = np.array([kerrgeo_Vt_polar(q, En, Lz, Qc, thi) for thi in th])
+    ut_rth = np.add.outer(utr, utth)
+    return (ut_rth)/Sigma
+
+def z0_gen_geo(geo):
+    En = geo.orbitalenergy
+    Lz = geo.orbitalangularmomentum
+    Qc = geo.carterconstant
+    r = full_libration(geo.radialpoints)
+    th = full_libration(geo.polarpoints)
+    q = geo.blackholespin
+
+    Sigma = np.add.outer(r**2, q**2*np.cos(th)**2)
+    return np.mean(Sigma)/np.mean(ut_gen(q, En, Lz, Qc, r, th)*Sigma)
+
 if __name__ == "__main__":
     data_dir = os.path.join(os.path.dirname(__file__), "..", "data", "huu")
     df = pd.read_csv(os.path.join(data_dir, "huu_metadata.csv"))
@@ -81,6 +102,7 @@ if __name__ == "__main__":
     print(f"(a, p, e, x) = ({a}, {p}, {e}, {x})")
 
     geo = KerrGeodesic(a, p, e, x, nsamples = nsamples)
+    z0 = z0_gen_geo(geo)
 
     lmodes = np.arange(1., lmax+1)
     huuregB = huu_reg_gen(geo)
@@ -88,8 +110,8 @@ if __name__ == "__main__":
     datareg = {}
     for huuYl_arr, key in [[huuYl_arr['ORG'], "ORG"], [huuYl_arr['IRG'], "IRG"], [huuYl_arr['SRG'], "SRG"]]:
         huul = huuYl_arr[0, 1:]
-        data[key] = -0.5*orbit_average_gen(huul, geo, axis = 2)
-        datareg[key] = -0.5*orbit_average_gen(huul - huuregB, geo, axis = 2)
+        data[key] = -0.5*z0*orbit_average_gen(huul, geo, axis = 2)
+        datareg[key] = -0.5*z0*orbit_average_gen(huul - huuregB, geo, axis = 2)
         ymin = np.min(np.abs(datareg[key]))/5
         ymax = 5*np.max(np.abs(datareg[key]))
 
