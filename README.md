@@ -8,8 +8,9 @@ See the [arXiv](https://arxiv.org/abs/2507.07746) for the latest version.
 All figures from the paper are included in the `figures` directory, while numerical values of the redshift, particularly those reported in Tables I and II in the paper, are provided in the `results` directory. Specifically,
 
 * `z1-equatorial_comparison.csv` contains the data for the comparisons made in Table I
+* `z1-equatorial_pn_comparison.csv` contains the data for the post-Newtonian comparisons made in Figures 4, 5, and 9
 * `z1-precessing.csv` contains the data listed in Table II
-* `z1-circular.csv` contains the data in the final figure, plotting the negative redshift values.
+* `z1-circular.csv` contains the data in Figure 8, plotting the negative redshift values.
 
 The `.csv` files are structured with the following information:
 

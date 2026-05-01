@@ -1,0 +1,35 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: metric-reconstruction-paper
+message: >-
+  Please cite this repository and the associated paper if
+  you make use of the data or scripts
+type: dataset
+authors:
+  - given-names: Zachary
+    family-names: Nasipak
+    email: z.nasipak@soton.ac.uk
+    affiliation: University of Southampton
+    orcid: 'https://orcid.org/0000-0002-5109-9704'
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.16654525
+    description: Zenodo archive
+  - type: doi
+    value: 10.48550/arXiv.2507.07746
+    description: arXiv paper
+repository-code: 'https://github.com/znasipak/metric-reconstruction-paper'
+repository: 'https://github.com/znasipak/pybhpt'
+abstract: >-
+  Repository of results for the paper on metric
+  reconstruction:
+
+
+  Z. Nasipak, Metric reconstruction and the Hamiltonian for
+  eccentric, precessing binaries in the small-mass-ratio
+  limit (2025)
+license: MIT
+version: 1.0.0
+date-released: '2026-05-01'
